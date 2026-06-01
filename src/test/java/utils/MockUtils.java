@@ -1,48 +1,48 @@
 package utils;
 
-import br.pereira.operacaocontacorrente.api.dto.LancamentoOutputDTO;
-import br.pereira.operacaocontacorrente.api.dto.LancamentoInputDto;
-import br.pereira.operacaocontacorrente.entity.Lancamento;
+import com.heitor.checkingaccountoperation.controller.dto.TransactionOutputDTO;
+import com.heitor.checkingaccountoperation.controller.dto.TransactionInputDto;
+import com.heitor.checkingaccountoperation.entity.Transaction;
 
 import java.util.*;
 
 public class MockUtils {
 
-    public static final Integer CEDULA_DEZ = 10;
-    public static final Integer VALOR_SAQUE_PERMITIDO = 30;
-    public static final Integer CONTA = 110;
-    public static final Integer VALOR = 160;
-    public static final Integer CEDULA_VINTE = 20;
-    public static final Integer QUANTIDADE = 1;
-    public static final String MSG_ERRO_EFETUAR_LANCAMENTO = "Erro ao efetivar lançamento.";
+    public static final int TEN_NOTE_VALUE = 10;
+    public static final int PERMITTED_WITHDRAWAL_AMOUNT = 30;
+    public static final int ACCOUNT_NUMBER = 110;
+    public static final int TRANSACTION_VALUE = 160;
+    public static final int TWENTY_NOTE_VALUE = 20;
+    public static final int DEFAULT_QUANTITY = 1;
+    public static final String ERROR_MSG_POSTING_TRANSACTION = "Error post-processing transaction.";
 
-    public static HashMap<Integer, Integer> gerarCedulas(){
-        HashMap<Integer, Integer> cedulas = new HashMap<>();
-        cedulas.put(CEDULA_DEZ, QUANTIDADE);
-        cedulas.put(CEDULA_VINTE, QUANTIDADE);
-        return cedulas;
+    public static HashMap<Integer, Integer> createNotes() {
+        HashMap<Integer, Integer> cashNotes = new HashMap<>();
+        cashNotes.put(TEN_NOTE_VALUE, DEFAULT_QUANTITY);
+        cashNotes.put(TWENTY_NOTE_VALUE, DEFAULT_QUANTITY);
+        return cashNotes;
     }
 
-    public static LancamentoInputDto gerarLancamentoInputDto() {
-        LancamentoInputDto dto = new LancamentoInputDto();
-        dto.setValor(VALOR_SAQUE_PERMITIDO);
+    public static TransactionInputDto createTransactionInputDto() {
+        TransactionInputDto dto = new TransactionInputDto();
+        dto.setValue(PERMITTED_WITHDRAWAL_AMOUNT);
         return dto;
     }
 
-    public static List<LancamentoOutputDTO> gerarListaLancamentoDTO() {
-        LancamentoOutputDTO dto = new LancamentoOutputDTO();
-        List<LancamentoOutputDTO> lista = new ArrayList<>();
-        dto.setValor(VALOR);
-        dto.setConta(CONTA);
-        lista.add(dto);
-        return lista;
+    public static List<TransactionOutputDTO> createListTransactionOutputDTO() {
+        TransactionOutputDTO dto = new TransactionOutputDTO();
+        dto.setValue(TRANSACTION_VALUE);
+        dto.setAccount(ACCOUNT_NUMBER);
+
+        List<TransactionOutputDTO> dtoList = new ArrayList<>();
+        dtoList.add(dto);
+        return dtoList;
     }
 
-    public static Lancamento gerarLancamento() {
-        Lancamento ent = new Lancamento();
-        ent.setValor(VALOR);
-        ent.setConta(CONTA);
-        return ent;
+    public static Transaction createTransaction() {
+        Transaction entity = new Transaction();
+        entity.setValue(TRANSACTION_VALUE);
+        entity.setAccount(ACCOUNT_NUMBER);
+        return entity;
     }
-
 }
