@@ -20,8 +20,8 @@ A Spring Boot microservice designed to manage checking account operations, focus
 
 ### Withdrawals
 
-#### Execute a Withdrawal
-*   **URL:** `/accounts/{accountId}/withdrawals`
+#### Execute a Withdrawal and return cash notes
+*   **URL:** `/accounts/withdrawals/{accountId}`
 *   **Method:** `POST`
 *   **Request Body (JSON):**
     ```json
@@ -33,6 +33,16 @@ A Spring Boot microservice designed to manage checking account operations, focus
     *   `201 Created`: Withdrawal successful. Returns transaction details and banknote distribution.
     *   `400 Bad Request`: Invalid data (e.g., negative amount).
     *   `422 Unprocessable Entity`: Insufficient funds to complete the operation.
+
+
+#### Search for withdrawals transactions
+*   **URL:** `/accounts/withdrawals/{accountId}`
+*   **Method:** `GET`
+*   **Responses:**
+    *   `201 Created`: Withdrawal successful. Returns transaction details and banknote distribution.
+    *   `400 Bad Request`: Invalid data (e.g., negative amount).
+    *   `422 Unprocessable Entity`: Insufficient funds to complete the operation.
+
 
 ---
 

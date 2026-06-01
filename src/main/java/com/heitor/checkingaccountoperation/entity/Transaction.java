@@ -1,16 +1,13 @@
 package com.heitor.checkingaccountoperation.entity;
 
-import com.sun.istack.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "transaction")
-@Getter
-@Setter
+@Table(name = "transactions")
+@Data
 public class Transaction {
 
     @Id
@@ -18,19 +15,18 @@ public class Transaction {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "account")
-    @NotNull
+    @Column(nullable = false)
     private Integer account;
 
-    @Column(name = "value")
-    @NotNull
-    private Integer value;
-
-    @Column(name = "type")
-    @NotNull
+    @Column(nullable = false)
     private String type;
 
-    @Column(name = "date")
+    @Column(nullable = false)
+    private Integer value;
+
+    @Column(nullable = false)
     private LocalDateTime date;
 
+    @Column(nullable = false, unique = true, length = 36)
+    private String suid;
 }

@@ -8,10 +8,13 @@ import com.heitor.checkingaccountoperation.converter.TransactionConverter;
 import com.heitor.checkingaccountoperation.entity.Transaction;
 import com.heitor.checkingaccountoperation.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TransactionService {
@@ -23,18 +26,29 @@ public class TransactionService {
     private TransactionConverter converter;
 
     private static final int[] NOTES = {100, 50, 20, 10};
-    private static final String MSG_VALUE_NOT_ALLOWED = "Valor não permite saque.";
-    private static final String ERROR_MSG_TRANSACTION_ERROR = "Erro ao efetivar lançamento.";
-    private static final String ERROR_MSG_SEARCH_ERROR = "Erro ao buscar lançamentos.";
+    private static final String MSG_VALUE_NOT_ALLOWED = "Value not allowed to withdraw";
+    private static final String ERROR_MSG_TRANSACTION_ERROR = "Error to withdraw";
+    private static final String ERROR_MSG_SEARCH_ERROR = "Error to find withdraw";
+    private static final String ERROR_MSG_SUID_ERROR = "Error - SUID already used";
 
-    public List<NoteOutputDto> withdraw(TransactionInputDto dto, Integer account ) throws WithdrawalException {
+    @Transactional
+    public List<NoteOutputDto> withdraw(TransactionInputDto inputDto, Integer accountNumber, String suid) throws WithdrawalException {
+        Optional<Transaction> existingTransaction = repository.findBySuid(suid);
+        if (existingTransaction.isPresent()) {
+            throw new WithdrawalException(ERROR_MSG_SUID_ERROR);
+        }
+
         try {
-            HashMap<Integer, Integer> quantityNotes = searchNoteValues(dto.getValue());
+            Transaction entity = converter.toEntity(inputDto, accountNumber);
+            entity.setSuid(suid);
+
+            HashMap<Integer, Integer> quantityNotes = searchNoteValues(inputDto.getValue());
             List<NoteOutputDto> notesToWithdraw = converter.toListNoteOutputDTO(quantityNotes);
-            save(converter.toEntity(dto, account));
+            repository.save(entity);
             return notesToWithdraw;
-        } catch (Exception e) {
-            throw new WithdrawalException(e.getMessage());
+
+        } catch (DataAccessException e) {
+            throw new WithdrawalException(ERROR_MSG_TRANSACTION_ERROR);
         }
     }
 
@@ -70,14 +84,6 @@ public class TransactionService {
             }
         }
         return NOTES[0];
-    }
-
-    public void save(Transaction entity) throws WithdrawalException {
-        try {
-            repository.save(entity);
-        } catch (Exception e) {
-            throw new WithdrawalException(ERROR_MSG_TRANSACTION_ERROR);
-        }
     }
 
     public List<TransactionOutputDTO> search(Integer account) throws WithdrawalException {

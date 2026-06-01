@@ -11,19 +11,6 @@ Microserviço desenvolvido em Spring Boot projetado para gerenciar operações d
 *   **Lombok** - Redução de código boilerplate (getters, setters, construtores).
 *   **Springdoc OpenAPI (Swagger)** - Documentação interativa dos endpoints.
 
-## 🛠️ Arquitetura do Projeto
-
-O projeto segue as melhores práticas da arquitetura em camadas do Spring:
-
-```text
-src/main/java/com/heitorseemann/operacaocontacorrente/
-│
-├── controller/     # Porta de entrada da API (Endpoints REST)
-├── service/        # Regras de negócio (Lógica de saque e validações)
-├── repository/     # Interface de comunicação com o Banco de Dados
-├── model/          # Entidades de domínio (Conta, Saque, etc.)
-└── exception/      # Tratamento global de erros da aplicação
-```
 
 ## 📋 Endpoints da API
 
@@ -31,8 +18,8 @@ Abaixo estão as principais rotas configuradas no sistema:
 
 ### Saques
 
-#### Efetuar um Saque
-*   **URL:** `/contas/{contaId}/saques`
+#### Efetuar um Saque e retorna as notas
+*   **URL:** `/accounts/withdrawals/{accountId}`
 *   **Método:** `POST`
 *   **Corpo da Requisição (JSON):**
     ```json
@@ -40,6 +27,15 @@ Abaixo estão as principais rotas configuradas no sistema:
       "valor": 150.00
     }
     ```
+*   **Respostas:**
+    *   `201 Created`: Saque realizado com sucesso. Retorna os detalhes da transação e a distribuição de cédulas.
+    *   `400 Bad Request`: Dados inválidos (ex: valor negativo).
+    *   `422 Unprocessable Entity`: Saldo insuficiente para completar a operação.
+
+
+#### Buscar saques
+*   **URL:** `/accounts/withdrawals/{accountId}`
+*   **Método:** `GET`
 *   **Respostas:**
     *   `201 Created`: Saque realizado com sucesso. Retorna os detalhes da transação e a distribuição de cédulas.
     *   `400 Bad Request`: Dados inválidos (ex: valor negativo).
