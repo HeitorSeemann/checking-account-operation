@@ -14,7 +14,6 @@ public class MockUtils {
     public static final int TRANSACTION_VALUE = 160;
     public static final int TWENTY_NOTE_VALUE = 20;
     public static final int DEFAULT_QUANTITY = 1;
-    public static final String ERROR_MSG_POSTING_TRANSACTION = "Error post-processing transaction.";
 
     public static HashMap<Integer, Integer> createNotes() {
         HashMap<Integer, Integer> cashNotes = new HashMap<>();
