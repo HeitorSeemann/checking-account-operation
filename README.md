@@ -1,80 +1,105 @@
 # Checking Account Operation 🏦
 
-[![Spring Boot](https://shields.io)](https://spring.io)
-[![Java](https://shields.io)](https://oracle.com)
+A hybrid Spring Boot service developed to process checking account operations, specifically cash withdrawals. The application architecture supports both synchronous communication via a REST API and asynchronous event processing via Apache Kafka.
 
-_Read this in other languages: [Português](README.pt-br.md)_
+Every withdrawal execution triggers core business logic to validate balance and compute the optimized distribution of banknotes.
 
-A Spring Boot microservice designed to manage checking account operations, focusing on executing and processing electronic cash withdrawals and data persistence.
+## 🚀 Technologies
 
-## 🚀 Technologies Used
+- **Java 17**
+- **Spring Boot 3.x**
+- **Gradle**
+- **Apache Kafka** (Asynchronous event processing)
+- **H2 Database** (In-Memory for transaction history and state)
+- **Spring Data JPA**
 
-*   **Java 17+** - Core language.
-*   **Spring Boot 3.x** - Framework for building the microservice.
-*   **Spring Data JPA** - Abstraction layer for database communication.
-*   **H2 Database** - In-memory database for fast development and testing.
-*   **Lombok** - Boilerplate code reduction (getters, setters, constructors).
-*   **Springdoc OpenAPI (Swagger)** - Interactive API documentation.
+## 🔄 Architectural Communication Patterns
 
-## 📋 API Endpoints
+The application processes operations through two entrypoints:
+1. **Synchronous Interface**: Clients invoke REST controllers directly over HTTP, receiving a blocking confirmation response.
+2. **Asynchronous Interface**: Other microservices or event producers publish events to an inbound Kafka stream. A dedicated consumer component picks up and processes the message sequentially.
 
-### Withdrawals
+Both patterns route requests through the exact same service layer to execute validation rules and calculation logic.
 
-#### Execute a Withdrawal and return cash notes
-*   **URL:** `/accounts/withdrawals/{accountId}`
-*   **Method:** `POST`
-*   **Request Body (JSON):**
-    ```json
-    {
-      "amount": 150.00
+## 📋 1. Synchronous Interface (REST API)
+
+### Create a Withdrawal
+* **URL:** `/accounts/withdrawals/{accountId}`
+* **Method:** `POST`
+* **Path Variable:** `accountId` (Long)
+* **Request DTO (Body):**
+  ```json
+  {
+    "amount": 130.00
+  }
+  ```
+* **Response DTO (201 Created):**
+  ```json
+  {
+    "id": 1,
+    "accountId": 1001,
+    "amount": 130.00,
+    "timestamp": "2026-06-02T16:30:00Z",
+    "banknotes": {
+      "100": 1,
+      "20": 1,
+      "10": 1
     }
-    ```
-*   **Responses:**
-    *   `201 Created`: Withdrawal successful. Returns transaction details and banknote distribution.
-    *   `400 Bad Request`: Invalid data (e.g., negative amount).
-    *   `422 Unprocessable Entity`: Insufficient funds to complete the operation.
+  }
+  ```
 
+### Get Withdrawal History
+* **URL:** `/accounts/withdrawals/{accountId}`
+* **Method:** `GET`
+* **Path Variable:** `accountId` (Long)
+* **Response DTO (200 OK):**
+  ```json
+  [
+    {
+      "id": 1,
+      "accountId": 1001,
+      "amount": 130.00,
+      "timestamp": "2026-06-02T16:30:00Z",
+      "banknotes": {
+        "100": 1,
+        "20": 1,
+        "10": 1
+      }
+    }
+  ]
+  ```
 
-#### Search for withdrawals transactions
-*   **URL:** `/accounts/withdrawals/{accountId}`
-*   **Method:** `GET`
-*   **Responses:**
-    *   `201 Created`: Withdrawal successful. Returns transaction details and banknote distribution.
-    *   `400 Bad Request`: Invalid data (e.g., negative amount).
-    *   `422 Unprocessable Entity`: Insufficient funds to complete the operation.
+## 🔄 2. Asynchronous Interface (Apache Kafka)
 
+### Inbound Message Consumer
+The service acts as a consumer listening to incoming events to trigger withdrawals asynchronously.
 
----
+* **Inbound Topic:** `withdrawal-requests`
+* **Message DTO (Payload):**
+  ```json
+  {
+    "accountId": 1001,
+    "amount": 280.00,
+    "timestamp": "2026-06-02T16:31:00Z"
+  }
+  ```
 
-## 🔧 How to Run the Project
+## 🧮 Banknote Optimization Logic
 
-### Prerequisites
-*   Java 17 or higher installed.
-*   Maven 3.8+ installed (or use the `./mvnw` wrapper).
+The application calculates the minimum number of bills required for a withdrawal using the standard denominations: `$100`, `$50`, `$20`, and `$10`.
 
-### Step-by-Step
+## 🔧 How to Run
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com
-   cd operacao-conta-corrente
-   ```
+### 1. Run Infrastructure
+Start the Kafka broker using Docker Compose:
+```bash
+docker-compose up -d
+```
 
-2. **Build the project:**
-   ```bash
-   ./mvnw clean package
-   ```
-
-3. **Run the application:**
-   ```bash
-   ./mvnw spring-boot:run
-   ```
-
-The application will start by default on port `8080`.
-
----
-
-## 🔍 Useful Links (While App is Running)
-
-*   **Swagger UI Documentation:** [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
-*   **H2 Database Console:** [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
+### 2. Build and Start the Application
+Compile and execute using Gradle:
+```bash
+./gradlew clean build
+./gradlew bootRun
+```
+The application will listen on HTTP port `8080` and subscribe to the `withdrawal-requests` Kafka topic simultaneously.
