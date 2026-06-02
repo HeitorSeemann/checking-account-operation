@@ -1,97 +1,105 @@
-# Operação Conta Corrente 🏦
+# Checking Account Operation 2026 🏦
 
-Microserviço desenvolvido em Spring Boot projetado para gerenciar operações de conta corrente, com foco inicial na execução e processamento de saques eletrônicos e persistência de dados.
+Um serviço Spring Boot híbrido desenvolvido para processar operações de conta corrente, especificamente saques em dinheiro. A arquitetura da aplicação suporta tanto comunicação síncrona via API REST quanto processamento assíncrono de eventos via Apache Kafka.
 
-## 🚀 Tecnologias Utilizadas
+Qualquer execução de saque aciona as regras centrais de negócio para validar saldo e calcular a distribuição otimizada de cédulas.
 
-*   **Java 17+** - Linguagem base do ecossistema.
-*   **Spring Boot 3.x** - Framework para construção do microserviço.
-*   **Spring Data JPA** - Abstração de persistência e comunicação com o banco.
-*   **H2 Database** - Banco de dados em memória para desenvolvimento e testes rápidos.
-*   **Lombok** - Redução de código boilerplate (getters, setters, construtores).
-*   **Springdoc OpenAPI (Swagger)** - Documentação interativa dos endpoints.
+## 🚀 Tecnologias
 
+- **Java 17**
+- **Spring Boot 3.x**
+- **Gradle**
+- **Apache Kafka** (Processamento assíncrono de eventos)
+- **H2 Database** (Em memória para histórico de transações)
+- **Spring Data JPA**
 
-## 📋 Endpoints da API
+## 🔄 Padrões de Comunicação da Arquitetura
 
-Abaixo estão as principais rotas configuradas no sistema:
+A aplicação processa operações através de dois pontos de entrada principais:
+1. **Interface Síncrona**: Clientes chamam controladores REST diretamente via HTTP, recebendo uma resposta confirmatória imediata e bloqueante.
+2. **Interface Assíncrona**: Outros microsserviços ou produtores publicam eventos em um stream do Kafka. Um componente consumidor dedicado processa a mensagem de forma sequencial.
 
-### Saques
+Ambos os fluxos encaminham as requisições para a mesma camada de serviço onde ocorrem as validações e os cálculos.
 
-#### Efetuar um Saque e retorna as notas
-*   **URL:** `/accounts/withdrawals/{accountId}`
-*   **Método:** `POST`
-*   **Corpo da Requisição (JSON):**
-    ```json
-    {
-      "valor": 150.00
+## 📋 1. Interface Síncrona (API REST)
+
+### Realizar um Saque
+* **URL:** `/accounts/withdrawals/{accountId}`
+* **Método:** `POST`
+* **Variável de Caminho:** `accountId` (Long)
+* **DTO de Requisição (Corpo):**
+  ```json
+  {
+    "amount": 130.00
+  }
+  ```
+* **DTO de Resposta (201 Created):**
+  ```json
+  {
+    "id": 1,
+    "accountId": 1001,
+    "amount": 130.00,
+    "timestamp": "2026-06-02T16:30:00Z",
+    "banknotes": {
+      "100": 1,
+      "20": 1,
+      "10": 1
     }
-    ```
-*   **Respostas:**
-    *   `201 Created`: Saque realizado com sucesso. Retorna os detalhes da transação e a distribuição de cédulas.
-    *   `400 Bad Request`: Dados inválidos (ex: valor negativo).
-    *   `422 Unprocessable Entity`: Saldo insuficiente para completar a operação.
+  }
+  ```
 
+### Consultar Histórico de Saques
+* **URL:** `/accounts/withdrawals/{accountId}`
+* **Método:** `GET`
+* **Variável de Caminho:** `accountId` (Long)
+* **DTO de Resposta (200 OK):**
+  ```json
+  [
+    {
+      "id": 1,
+      "accountId": 1001,
+      "amount": 130.00,
+      "timestamp": "2026-06-02T16:30:00Z",
+      "banknotes": {
+        "100": 1,
+        "20": 1,
+        "10": 1
+      }
+    }
+  ]
+  ```
 
-#### Buscar saques
-*   **URL:** `/accounts/withdrawals/{accountId}`
-*   **Método:** `GET`
-*   **Respostas:**
-    *   `201 Created`: Saque realizado com sucesso. Retorna os detalhes da transação e a distribuição de cédulas.
-    *   `400 Bad Request`: Dados inválidos (ex: valor negativo).
-    *   `422 Unprocessable Entity`: Saldo insuficiente para completar a operação.
+## 🔄 2. Interface Assíncrona (Apache Kafka)
 
----
+### Consumidor de Mensagens de Entrada
+O serviço atua como consumidor escutando eventos recebidos para disparar saques de forma assíncrona.
 
-## 🔧 Como Executar o Projeto
+* **Tópico de Entrada:** `withdrawal-requests`
+* **DTO da Mensagem (Payload):**
+  ```json
+  {
+    "accountId": 1001,
+    "amount": 280.00,
+    "timestamp": "2026-06-02T16:31:00Z"
+  }
+  ```
 
-### Pré-requisitos
-*   Java 17 ou superior instalado.
-*   Maven 3.8+ instalado (ou utilize o wrapper `./mvnw`).
+## 🧮 Lógica de Otimização de Cédulas
 
-### Passo a Passo
+A aplicação calcula a menor quantidade possível de notas necessárias para o saque utilizando cédulas de: `R$100`, `R$50`, `R$20` e `R$10`.
 
-1. **Clonar o repositório:**
-   ```bash
-   git clone https://github.com
-   cd operacao-conta-corrente
-   ```
+## 🔧 Como Executar
 
-2. **Compilar o projeto:**
-   ```bash
-   ./mvnw clean package
-   ```
-
-3. **Executar a aplicação:**
-   ```bash
-   ./mvnw spring-boot:run
-   ```
-
-A aplicação iniciará por padrão na porta `8080`.
-
----
-
-## 🔍 Links Úteis com o App Rodando
-
-*   **Documentação Swagger UI:** [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
-*   **Console do Banco H2:** [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
-    *   *Nota: Verifique as credenciais `jdbc:url`, `username` e `password` no arquivo `application.properties`.*
-
----
-
-## 🧪 Executando os Testes
-
-Para rodar a suíte de testes unitários e de integração, execute:
-
+### 1. Subir Infraestrutura
+Inicie o broker do Kafka utilizando o Docker Compose:
 ```bash
-./mvnw test
+docker-compose up -d
 ```
 
----
-
-## ✒️ Autor
-
-*   **Heitor Seemann** - *Desenvolvimento Inicial* - [HeitorSeemann](https://github.com)
-
----
-Este projeto foi desenvolvido para fins de estudo e práticas de arquitetura de software com Spring Boot.
+### 2. Compilar e Iniciar a Aplicação
+Compile e execute o projeto utilizando o Gradle:
+```bash
+./gradlew clean build
+./gradlew bootRun
+```
+A aplicação responderá na porta HTTP `8080` e escutará mensagens no tópico do Kafka simultaneamente.
