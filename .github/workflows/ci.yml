@@ -25,5 +25,12 @@ jobs:
         run: chmod +x gradlew
 
       - name: Compile and Execute Tests
-        # Forçamos o Spring a rodar em perfil de teste isolado e desativamos o bootstrap do Kafka
-        run: ./gradlew test -Dspring.profiles.active=test -Dspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration --info
+        # Executa os testes normalmente coletando os relatórios físicos
+        run: ./gradlew test --continue
+
+      - name: Publish Test Report on Failure
+        # Esse passo lê os relatórios do JUnit e plota o erro exato no painel do GitHub se algo falhar
+        if: always()
+        uses: mikepenz/action-junit-report@v4
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
