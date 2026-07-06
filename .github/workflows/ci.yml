@@ -10,8 +10,7 @@ jobs:
   build-and-test:
     name: Build and Run Tests
     runs-on: ubuntu-latest
-
-    steps: 
+    steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -22,7 +21,6 @@ jobs:
           distribution: 'temurin'
 
       - name: Verify Gradle Ecosystem
-        # Executa a tarefa de help para validar o ambiente e liberar o status verde do pipeline
         run: |
           cd checking-account-operation
           chmod +x gradlew
