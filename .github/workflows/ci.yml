@@ -24,8 +24,9 @@ jobs:
       - name: Setup Gradle Environment
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Compile and Execute Tests
-        # Compila e roda o build ignorando bloqueios de conexão do Kafka/Banco na nuvem
+      - name: Compile and Build Project
+        # Esta propriedade força o GitHub a entrar na subpasta antes de rodar os comandos
+        working-directory: checking-account-operation
         run: |
-          chmod +x ./checking-account-operation/gradlew
-          ./checking-account-operation/gradlew build -p checking-account-operation -x test --info
+          chmod +x gradlew
+          ./gradlew build -x test --info
