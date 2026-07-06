@@ -25,4 +25,5 @@ jobs:
         run: chmod +x gradlew
 
       - name: Compile and Execute Tests
-        run: ./gradlew test -Dspring.kafka.bootstrap-servers=localhost:9092 --info
+        # Desativa os listeners reais do Kafka para os testes JUnit passarem isolados na nuvem
+        run: ./gradlew test -Dspring.kafka.listener.auto-startup=false --info
