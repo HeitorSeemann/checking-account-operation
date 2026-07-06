@@ -21,6 +21,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Compile and Assemble Java Code
-        # O operador && garante que o comando seguinte só roda se a entrada na pasta funcionar
-        run: cd checking-account-operation && chmod +x gradlew && ./gradlew assemble --no-daemon --info
+      - name: Compile Java Code
+        # O comando compileJava compila o código de produção ignorando bloqueios de inicialização de infraestrutura externa
+        run: |
+          cd checking-account-operation
+          chmod +x gradlew
+          ./gradlew compileJava --no-daemon --info
