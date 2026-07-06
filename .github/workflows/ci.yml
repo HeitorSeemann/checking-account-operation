@@ -11,7 +11,7 @@ jobs:
     name: Build and Run Tests
     runs-on: ubuntu-latest
 
-    steps:
+    steps: 
       - name: Checkout Repository
         uses: actions/checkout@v4
 
