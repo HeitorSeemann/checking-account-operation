@@ -22,8 +22,8 @@ jobs:
           distribution: 'temurin'
 
       - name: Compile and Assemble Java Code
-        # O comando cd $GITHUB_WORKSPACE limpa o cache e força a navegação para o local real no Linux
+        # Esta propriedade instrui nativamente o runner do GitHub a se posicionar no diretório correto
+        working-directory: ./checking-account-operation
         run: |
-          cd $GITHUB_WORKSPACE/checking-account-operation
           chmod +x gradlew
-          ./gradlew assemble --no-daemon
+          ./gradlew assemble --no-daemon --info
