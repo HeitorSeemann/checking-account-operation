@@ -10,6 +10,10 @@ jobs:
   build-and-test:
     name: Build and Run Tests
     runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: checking-account-operation
 
     steps:
       - name: Checkout Repository
@@ -22,11 +26,9 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle Environment
-        # Prepara a infraestrutura apontando nativamente para a subpasta do projeto
         uses: gradle/actions/setup-gradle@v4
-        with:
-          build-root-directory: checking-account-operation
 
       - name: Compile and Execute Tests
-        # Executa o wrapper diretamente apontando para a subpasta sem quebrar o Bash
-        run: ./checking-account-operation/gradlew test --project-dir checking-account-operation --info
+        run: |
+          chmod +x gradlew
+          ./gradlew test -Dspring.kafka.listener.auto-startup=false --info
