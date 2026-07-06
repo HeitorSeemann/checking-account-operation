@@ -22,9 +22,12 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle Environment
-        # Inicializa o ambiente e gerencia as permissões nativas sem parâmetros obsoletos
         uses: gradle/actions/setup-gradle@v4
+        with:
+          # Aponta o gerenciador de cache para a pasta real do projeto Java
+          build-root-directory: checking-account-operation
 
       - name: Compile and Execute Tests
-        # Executa o wrapper diretamente de forma isolada e segura
+        # Força o terminal a rodar o comando de testes dentro da pasta correta
+        working-directory: checking-account-operation
         run: ./gradlew test --info
