@@ -21,8 +21,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup and Run Gradle
-        # Esta ação oficial gerencia o wrapper do Gradle, aplica permissões e executa os testes nativamente
+      - name: Setup Gradle Environment
+        # Inicializa o ambiente e gerencia as permissões nativas sem parâmetros obsoletos
         uses: gradle/actions/setup-gradle@v4
-        with:
-          arguments: test --info
+
+      - name: Compile and Execute Tests
+        # Executa o wrapper diretamente de forma isolada e segura
+        run: ./gradlew test --info
