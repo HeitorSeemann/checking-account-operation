@@ -10,10 +10,6 @@ jobs:
   build-and-test:
     name: Build and Run Tests
     runs-on: ubuntu-latest
-    
-    defaults:
-      run:
-        working-directory: checking-account-operation
 
     steps:
       - name: Checkout Repository
@@ -29,6 +25,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Compile and Execute Tests
+        # Executa o wrapper explicitamente apontando para a subpasta do Java
         run: |
-          chmod +x gradlew
-          ./gradlew test -Dspring.kafka.listener.auto-startup=false --info
+          chmod +x ./checking-account-operation/gradlew
+          ./checking-account-operation/gradlew test -p checking-account-operation -Dspring.kafka.listener.auto-startup=false --info
