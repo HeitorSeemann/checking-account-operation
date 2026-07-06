@@ -23,11 +23,10 @@ jobs:
 
       - name: Setup Gradle Environment
         uses: gradle/actions/setup-gradle@v4
-        with:
-          # Aponta o gerenciador de cache para a pasta real do projeto Java
-          build-root-directory: checking-account-operation
 
       - name: Compile and Execute Tests
-        # Força o terminal a rodar o comando de testes dentro da pasta correta
-        working-directory: checking-account-operation
-        run: ./gradlew test --info
+        # Entramos na subpasta fisicamente antes de rodar o wrapper
+        run: |
+          cd checking-account-operation
+          chmod +x gradlew
+          ./gradlew test --info
