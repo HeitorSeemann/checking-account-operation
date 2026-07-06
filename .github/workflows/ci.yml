@@ -22,11 +22,11 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle Environment
+        # Prepara a infraestrutura apontando nativamente para a subpasta do projeto
         uses: gradle/actions/setup-gradle@v4
+        with:
+          build-root-directory: checking-account-operation
 
       - name: Compile and Execute Tests
-        # Entramos na subpasta fisicamente antes de rodar o wrapper
-        run: |
-          cd checking-account-operation
-          chmod +x gradlew
-          ./gradlew test --info
+        # Executa o wrapper diretamente apontando para a subpasta sem quebrar o Bash
+        run: ./checking-account-operation/gradlew test --project-dir checking-account-operation --info
