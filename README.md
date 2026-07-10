@@ -6,12 +6,13 @@ Every withdrawal execution triggers core business logic to validate balance and 
 
 ## 🚀 Technologies
 
-- **Java 17**
-- **Spring Boot 3.x**
+- **Java 11**
+- **Spring Boot**
 - **Gradle**
-- **Apache Kafka** (Asynchronous event processing)
-- **H2 Database** (In-Memory for transaction history and state)
+- **Apache Kafka** (Asynchronous event processing via Docker KRaft mode)
+- **H2 Database** (In-Memory for transaction history and state embedded within the process)
 - **Spring Data JPA**
+- **Docker & Docker Compose** (Containerization and infrastructure orchestration)
 
 ## 🔄 Architectural Communication Patterns
 
@@ -90,16 +91,49 @@ The application calculates the minimum number of bills required for a withdrawal
 
 ## 🔧 How to Run
 
-### 1. Run Infrastructure
-Start the Kafka broker using Docker Compose:
-```bash
-docker-compose up -d
-```
+You can choose to spin up the entire application stack using Docker (Recommended) or run a hybrid local environment.
 
-### 2. Build and Start the Application
-Compile and execute using Gradle:
-```bash
-./gradlew clean build
-./gradlew bootRun
-```
-The application will listen on HTTP port `8080` and subscribe to the `withdrawal-requests` Kafka topic simultaneously.
+### Option 1: Full Execution via Docker (Recommended)
+
+This method packages the application into a lightweight container and orchestrates it alongside Apache Kafka inside an isolated network.
+
+1. Compile and package the executable application binary (`.jar`) on your host machine:
+   ```bash
+   ./gradlew bootJar
+   ```
+2. Build the final runtime container image and spin up the complete stack in the background:
+   ```bash
+   docker compose up --build -d
+   ```
+   The Spring Boot REST API will be immediately reachable at `http://localhost:8080` and dynamically linked to the Kafka broker.
+
+### Option 2: Hybrid Execution (Kafka in Docker + Local App)
+
+Ideal for active local development, fast iterations, and quick debugging via an IDE.
+
+1. Spin up **only** the Apache Kafka infrastructure container:
+   ```bash
+   docker compose up kafka -d
+   ```
+2. Compile and run the Spring Boot application natively on your host machine:
+   ```bash
+   ./gradlew bootRun
+   ```
+
+---
+
+## 🧪 Running Tests
+
+To achieve optimal build performance, instant test execution loops, and avoid cross-OS file lock contention (especially on Windows hosts sharing volumes with WSL), the recommended development workflow is to execute the test suite on the host machine using the Docker-backed Kafka broker.
+
+1. Ensure the Kafka container environment is running:
+   ```bash
+   docker compose up kafka -d
+   ```
+2. Trigger the Gradle test execution runner task:
+   ```bash
+   ./gradlew test
+   ```
+3. A complete, interactive HTML test execution report will be generated. You can inspect the results by opening the following file directly in your browser:
+   `build/reports/tests/test/index.html`
+
