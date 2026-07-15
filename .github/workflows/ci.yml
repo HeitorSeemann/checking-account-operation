@@ -46,4 +46,6 @@ jobs:
           docker exec ${{ job.services.kafka.id }} kafka-topics --create --bootstrap-server localhost:9092 --topic account-withdrawals --partitions 1 --replication-factor 1
 
       - name: Executar Build
-        run: ./gradlew clean build --no-daemon
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build --no-daemon
