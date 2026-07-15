@@ -32,7 +32,7 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Configurar JDK para o Gradle
+      - name: Configurar JDK 21 para o Gradle
         uses: actions/setup-java@v4
         with:
           java-version: '21'
@@ -48,4 +48,4 @@ jobs:
       - name: Executar Build
         run: |
           chmod +x gradlew
-          ./gradlew clean build --no-daemon
+          ./gradlew clean build --no-daemon -Dorg.gradle.java.home=$JAVA_HOME
