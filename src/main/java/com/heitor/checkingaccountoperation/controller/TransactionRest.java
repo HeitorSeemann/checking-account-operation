@@ -1,7 +1,7 @@
 package com.heitor.checkingaccountoperation.controller;
 
 import com.heitor.checkingaccountoperation.controller.dto.NoteOutputDto;
-import com.heitor.checkingaccountoperation.controller.dto.TransactionInputDto;
+import com.heitor.checkingaccountoperation.controller.dto.TransactionInputDTO;
 import com.heitor.checkingaccountoperation.controller.dto.TransactionOutputDTO;
 import com.heitor.checkingaccountoperation.controller.exception.WithdrawalException;
 import com.heitor.checkingaccountoperation.service.TransactionService;
@@ -26,7 +26,7 @@ public class TransactionRest {
     @PostMapping("/{accountNumber}")
     public ResponseEntity<List<NoteOutputDto>> executeWithdrawal(
             @PathVariable Integer accountNumber,
-            @RequestBody TransactionInputDto inputDto,
+            @RequestBody TransactionInputDTO inputDto,
             @RequestHeader("Idempotency-Key") String suid) throws WithdrawalException {
 
         List<NoteOutputDto> list = service.withdraw(inputDto, accountNumber, suid);

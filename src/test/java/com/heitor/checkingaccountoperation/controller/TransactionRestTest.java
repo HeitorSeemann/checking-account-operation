@@ -2,7 +2,7 @@ package com.heitor.checkingaccountoperation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.heitor.checkingaccountoperation.controller.dto.NoteOutputDto;
-import com.heitor.checkingaccountoperation.controller.dto.TransactionInputDto;
+import com.heitor.checkingaccountoperation.controller.dto.TransactionInputDTO;
 import com.heitor.checkingaccountoperation.controller.dto.TransactionOutputDTO;
 import com.heitor.checkingaccountoperation.controller.exception.handler.WithdrawalExceptionHandler;
 import com.heitor.checkingaccountoperation.service.TransactionService;
@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -50,14 +51,14 @@ class TransactionRestTest {
 
     @Test
     void shouldExecuteWithdrawalSuccessfully() throws Exception {
-        TransactionInputDto inputDto = MockUtils.createTransactionInputDto();
+        TransactionInputDTO inputDto = MockUtils.createTransactionInputDto();
         List<NoteOutputDto> listNoteOutputDto = new ArrayList<>();
 
         TransactionOutputDTO outputDto = new TransactionOutputDTO();
         outputDto.setAccount(MockUtils.ACCOUNT_NUMBER);
         outputDto.setValue(MockUtils.PERMITTED_WITHDRAWAL_AMOUNT);
 
-        Mockito.when(transactionService.withdraw(Mockito.any(TransactionInputDto.class), Mockito.anyInt(), Mockito.eq(TEST_SUID)))
+        when(transactionService.withdraw(Mockito.any(TransactionInputDTO.class), Mockito.anyInt(), Mockito.eq(TEST_SUID)))
                 .thenReturn(listNoteOutputDto);
 
         mockMvc.perform(post("/accounts/withdrawals/{accountNumber}", MockUtils.ACCOUNT_NUMBER)
@@ -69,7 +70,7 @@ class TransactionRestTest {
 
     @Test
     void shouldReturnBadRequestWhenIdempotencyKeyIsMissing() throws Exception {
-        TransactionInputDto inputDto = MockUtils.createTransactionInputDto();
+        TransactionInputDTO inputDto = MockUtils.createTransactionInputDto();
         mockMvc.perform(post("/accounts/withdrawals/{accountNumber}", MockUtils.ACCOUNT_NUMBER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inputDto)))
@@ -80,7 +81,7 @@ class TransactionRestTest {
     void shouldGetTransactionsSuccessfully() throws Exception {
         List<TransactionOutputDTO> mockList = MockUtils.createListTransactionOutputDTO();
 
-        Mockito.when(transactionService.search(MockUtils.ACCOUNT_NUMBER))
+        when(transactionService.search(MockUtils.ACCOUNT_NUMBER))
                 .thenReturn(mockList);
 
         mockMvc.perform(get("/accounts/withdrawals/{accountNumber}", MockUtils.ACCOUNT_NUMBER)

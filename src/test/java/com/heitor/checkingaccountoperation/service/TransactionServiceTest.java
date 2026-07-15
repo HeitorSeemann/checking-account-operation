@@ -1,7 +1,7 @@
 package com.heitor.checkingaccountoperation.service;
 
 import com.heitor.checkingaccountoperation.controller.dto.NoteOutputDto;
-import com.heitor.checkingaccountoperation.controller.dto.TransactionInputDto;
+import com.heitor.checkingaccountoperation.controller.dto.TransactionInputDTO;
 import com.heitor.checkingaccountoperation.controller.dto.TransactionOutputDTO;
 import com.heitor.checkingaccountoperation.controller.exception.WithdrawalException;
 import com.heitor.checkingaccountoperation.converter.TransactionConverter;
@@ -19,6 +19,11 @@ import utils.MockUtils;
 
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 class TransactionServiceTest {
 
@@ -35,58 +40,58 @@ class TransactionServiceTest {
 
     @Test
     void shouldWithdrawWithSuccess() throws WithdrawalException {
-        TransactionInputDto inputDto = new TransactionInputDto();
+        TransactionInputDTO inputDto = new TransactionInputDTO();
         inputDto.setValue(180);
 
         Transaction mockEntity = new Transaction();
         List<NoteOutputDto> mockNotesList = new ArrayList<>();
 
-        Mockito.when(repository.findBySuid(TEST_SUID)).thenReturn(Optional.empty());
-        Mockito.when(converter.toEntity(inputDto, MockUtils.ACCOUNT_NUMBER)).thenReturn(mockEntity);
-        Mockito.when(converter.toListNoteOutputDTO(Mockito.any(HashMap.class))).thenReturn(mockNotesList);
+        when(repository.findBySuid(TEST_SUID)).thenReturn(Optional.empty());
+        when(converter.toEntity(inputDto, MockUtils.ACCOUNT_NUMBER)).thenReturn(mockEntity);
+        when(converter.toListNoteOutputDTO(Mockito.any(HashMap.class))).thenReturn(mockNotesList);
 
         List<NoteOutputDto> result = service.withdraw(inputDto, MockUtils.ACCOUNT_NUMBER, TEST_SUID);
 
-        Assertions.assertNotNull(result);
-        Mockito.verify(repository, Mockito.times(1)).save(Mockito.any());
+        assertNotNull(result);
+        verify(repository, Mockito.times(1)).save(Mockito.any());
     }
 
     @Test
     void shouldThrowExceptionWhenSuidAlreadyUsed() {
-        TransactionInputDto inputDto = MockUtils.createTransactionInputDto();
-        Mockito.when(repository.findBySuid(TEST_SUID)).thenReturn(Optional.of(new Transaction()));
+        TransactionInputDTO inputDto = MockUtils.createTransactionInputDto();
+        when(repository.findBySuid(TEST_SUID)).thenReturn(Optional.of(new Transaction()));
 
         WithdrawalException exception = Assertions.assertThrows(WithdrawalException.class, () -> {
             service.withdraw(inputDto, MockUtils.ACCOUNT_NUMBER, TEST_SUID);
         });
 
-        Assertions.assertEquals("Error - SUID already used", exception.getMessage());
-        Mockito.verify(repository, Mockito.never()).save(Mockito.any());
+        assertEquals("Error - SUID already used", exception.getMessage());
+        verify(repository, Mockito.never()).save(Mockito.any());
     }
 
     @Test
     void shouldThrowExceptionWhenDatabaseSaveFails() {
-        TransactionInputDto inputDto = new TransactionInputDto();
+        TransactionInputDTO inputDto = new TransactionInputDTO();
         inputDto.setValue(50);
 
-        Mockito.when(repository.findBySuid(TEST_SUID)).thenReturn(Optional.empty());
-        Mockito.when(converter.toEntity(inputDto, MockUtils.ACCOUNT_NUMBER)).thenReturn(new Transaction());
-        Mockito.when(repository.save(Mockito.any())).thenThrow(Mockito.mock(DataAccessException.class));
+        when(repository.findBySuid(TEST_SUID)).thenReturn(Optional.empty());
+        when(converter.toEntity(inputDto, MockUtils.ACCOUNT_NUMBER)).thenReturn(new Transaction());
+        when(repository.save(Mockito.any())).thenThrow(Mockito.mock(DataAccessException.class));
 
         WithdrawalException exception = Assertions.assertThrows(WithdrawalException.class, () -> {
             service.withdraw(inputDto, MockUtils.ACCOUNT_NUMBER, TEST_SUID);
         });
 
-        Assertions.assertEquals("Error to withdraw", exception.getMessage());
+        assertEquals("Error to withdraw", exception.getMessage());
     }
 
     @Test
     void shouldCalculateNoteValuesCorrectly() throws WithdrawalException {
         HashMap<Integer, Integer> result = service.searchNoteValues(180);
-        Assertions.assertEquals(1, result.get(100));
-        Assertions.assertEquals(1, result.get(50));
-        Assertions.assertEquals(1, result.get(20));
-        Assertions.assertEquals(1, result.get(10));
+        assertEquals(1, result.get(100));
+        assertEquals(1, result.get(50));
+        assertEquals(1, result.get(20));
+        assertEquals(1, result.get(10));
     }
 
     @Test
@@ -95,7 +100,7 @@ class TransactionServiceTest {
             service.searchNoteValues(7);
         });
 
-        Assertions.assertEquals("Value not allowed to withdraw", exception.getMessage());
+        assertEquals("Value not allowed to withdraw", exception.getMessage());
     }
 
     @Test
@@ -103,23 +108,23 @@ class TransactionServiceTest {
         List<Transaction> mockEntities = new ArrayList<>();
         List<TransactionOutputDTO> mockDtos = MockUtils.createListTransactionOutputDTO();
 
-        Mockito.when(repository.findByAccount(MockUtils.ACCOUNT_NUMBER)).thenReturn(mockEntities);
-        Mockito.when(converter.toListTransactionOutputDTO(mockEntities)).thenReturn(mockDtos);
+        when(repository.findByAccount(MockUtils.ACCOUNT_NUMBER)).thenReturn(mockEntities);
+        when(converter.toListTransactionOutputDTO(mockEntities)).thenReturn(mockDtos);
 
         List<TransactionOutputDTO> result = service.search(MockUtils.ACCOUNT_NUMBER);
 
-        Assertions.assertEquals(mockDtos, result);
+        assertEquals(mockDtos, result);
     }
 
     @Test
     void shouldThrowExceptionWhenSearchFails() {
-        Mockito.when(repository.findByAccount(MockUtils.ACCOUNT_NUMBER)).thenThrow(RuntimeException.class);
+        when(repository.findByAccount(MockUtils.ACCOUNT_NUMBER)).thenThrow(RuntimeException.class);
 
         WithdrawalException exception = Assertions.assertThrows(WithdrawalException.class, () -> {
             service.search(MockUtils.ACCOUNT_NUMBER);
         });
 
-        Assertions.assertEquals("Error to find withdraw", exception.getMessage());
+        assertEquals("Error to find withdraw", exception.getMessage());
     }
 
 }

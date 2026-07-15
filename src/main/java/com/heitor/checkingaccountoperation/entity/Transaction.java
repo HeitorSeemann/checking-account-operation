@@ -1,8 +1,7 @@
 package com.heitor.checkingaccountoperation.entity;
 
 import lombok.Data;
-
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,7 +20,7 @@ public class Transaction {
     @Column(nullable = false)
     private String type;
 
-    @Column(nullable = false)
+    @Column(name = "\"value\"", nullable = false)
     private Integer value;
 
     @Column(nullable = false)

@@ -1,28 +1,51 @@
-name: Continuous Integration
+name: Java CI with Gradle and Kafka
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ "main" ]
 
 jobs:
   build-and-test:
-    name: Build and Run Tests
     runs-on: ubuntu-latest
 
+    services:
+      kafka:
+        image: confluentinc/cp-kafka:7.4.0
+        ports:
+          - 9092:9092
+        env:
+          KAFKA_NODE_ID: 1
+          KAFKA_PROCESS_ROLES: 'broker,controller'
+          KAFKA_CONTROLLER_QUORUM_VOTERS: '1@localhost:29093'
+          KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093'
+          KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092'
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+          KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+          KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+          KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+          CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Setup Java JDK 17
+      - name: Configurar JDK 21 para o Gradle
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
 
-      - name: Verify Environment Integrity
-        # Comando limpo que aprova a esteira e garante o check verde no seu portfólio
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Criar Tópico no Kafka
         run: |
-          echo "GitHub Actions infrastructure initialized successfully!"
-          java -version
+          docker exec ${{ job.services.kafka.id }} kafka-topics --create --bootstrap-server localhost:9092 --topic account-withdrawals --partitions 1 --replication-factor 1
+
+      - name: Executar Build
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build --no-daemon -Dorg.gradle.java.home=$JAVA_HOME

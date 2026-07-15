@@ -1,11 +1,21 @@
-FROM eclipse-temurin:17-jre-alpine
+
+FROM eclipse-temurin:25-jdk-alpine AS build
 WORKDIR /app
 
-RUN addgroup -S spring && adduser -S spring -G spring
-USER spring:spring
+COPY gradle/ gradle/
+COPY gradlew gradlew
+COPY build.gradle settings.gradle /app/
 
-COPY build/libs/*.jar app.jar
+RUN chmod +x gradlew
+
+COPY src/ src/
+
+RUN ./gradlew clean bootJar --no-daemon
+
+FROM eclipse-temurin:25-jre-alpine
+WORKDIR /app
+
+COPY --from=build /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
-
 ENTRYPOINT ["java", "-jar", "app.jar"]

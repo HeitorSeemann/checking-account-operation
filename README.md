@@ -6,7 +6,7 @@ Every withdrawal execution triggers core business logic to validate balance and 
 
 ## 🚀 Technologies
 
-- **Java 11**
+- **Java 25**
 - **Spring Boot**
 - **Gradle**
 - **Apache Kafka** (Asynchronous event processing via Docker KRaft mode)
