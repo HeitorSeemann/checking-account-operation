@@ -1,9 +1,12 @@
 package com.heitor.checkingaccountoperation.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.heitor.checkingaccountoperation.controller.dto.TransactionInputDto;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.heitor.checkingaccountoperation.controller.dto.TransactionInputDTO;
 import com.heitor.checkingaccountoperation.controller.dto.WithdrawalMessageDTO;
 import com.heitor.checkingaccountoperation.service.TransactionService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,25 +18,32 @@ import org.springframework.stereotype.Component;
 public class WithdrawalConsumer {
 
     private final TransactionService service;
-    private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "account-withdrawals", groupId = "checking-account-group")
+    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
+            .addModule(new JavaTimeModule())
+            .build();
+
+    @PostConstruct
+    public void init() {
+        log.info("[KAFKA-INIT] Classe WithdrawalConsumer loaded!");
+    }
+
+    @KafkaListener(topics = "account-withdrawals")
     public void consumeWithdrawal(String messageJson) {
         try {
-            log.info("Message received do Kafka: {}", messageJson);
+            log.info("[KAFKA-LOG] Msg received topic: {}", messageJson);
 
-            WithdrawalMessageDTO dto = objectMapper.readValue(messageJson, WithdrawalMessageDTO.class);
+            WithdrawalMessageDTO dto = OBJECT_MAPPER.readValue(messageJson, WithdrawalMessageDTO.class);
 
-            TransactionInputDto inputDto = new TransactionInputDto();
+            TransactionInputDTO inputDto = new TransactionInputDTO();
             inputDto.setValue(dto.getAmount());
 
             service.withdraw(inputDto, dto.getAccountId(), dto.getUuid());
 
-            log.info("WithDrawal processed to account: {}", dto.getAccountId());
+            log.info("[KAFKA-SUCCESS] account: {}", dto.getAccountId());
 
         } catch (Exception e) {
-            log.error("Error to process the message: {}", e.getMessage(), e);
+            log.error("[KAFKA-ERROR] Error: {}", e.getMessage(), e);
         }
     }
 }
-

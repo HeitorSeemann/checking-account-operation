@@ -1,28 +1,31 @@
-name: Continuous Integration
+name: Java 25 CI with Gradle
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ "main", "master", "develop" ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ "main", "master" ]
+
+permissions:
+  contents: read
 
 jobs:
-  build-and-test:
-    name: Build and Run Tests
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Java JDK 17
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '25'
           distribution: 'temurin'
+          cache: 'gradle'
 
-      - name: Verify Environment Integrity
-        # Comando limpo que aprova a esteira e garante o check verde no seu portfólio
-        run: |
-          echo "GitHub Actions infrastructure initialized successfully!"
-          java -version
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build and Test with Gradle
+        run: ./gradlew clean build --no-daemon

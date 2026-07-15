@@ -2,7 +2,7 @@ package com.heitor.checkingaccountoperation.service;
 
 import com.heitor.checkingaccountoperation.controller.dto.NoteOutputDto;
 import com.heitor.checkingaccountoperation.controller.dto.TransactionOutputDTO;
-import com.heitor.checkingaccountoperation.controller.dto.TransactionInputDto;
+import com.heitor.checkingaccountoperation.controller.dto.TransactionInputDTO;
 import com.heitor.checkingaccountoperation.controller.exception.WithdrawalException;
 import com.heitor.checkingaccountoperation.converter.TransactionConverter;
 import com.heitor.checkingaccountoperation.entity.Transaction;
@@ -12,6 +12,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +33,7 @@ public class TransactionService {
     private static final String ERROR_MSG_SUID_ERROR = "Error - SUID already used";
 
     @Transactional
-    public List<NoteOutputDto> withdraw(TransactionInputDto inputDto, Integer accountNumber, String suid) throws WithdrawalException {
+    public List<NoteOutputDto> withdraw(TransactionInputDTO inputDto, Integer accountNumber, String suid) throws WithdrawalException {
         Optional<Transaction> existingTransaction = repository.findBySuid(suid);
         if (existingTransaction.isPresent()) {
             throw new WithdrawalException(ERROR_MSG_SUID_ERROR);
@@ -41,7 +42,8 @@ public class TransactionService {
         try {
             Transaction entity = converter.toEntity(inputDto, accountNumber);
             entity.setSuid(suid);
-
+            entity.setDate(LocalDateTime.now());
+            entity.setType("WITHDRAWL");
             HashMap<Integer, Integer> quantityNotes = searchNoteValues(inputDto.getValue());
             List<NoteOutputDto> notesToWithdraw = converter.toListNoteOutputDTO(quantityNotes);
             repository.save(entity);

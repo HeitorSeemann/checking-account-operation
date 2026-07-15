@@ -6,7 +6,7 @@ Qualquer execução de saque aciona as regras centrais de negócio para validar 
 
 ## 🚀 Tecnologias
 
-- **Java 17**
+- **Java 25**
 - **Spring Boot 3.x**
 - **Gradle**
 - **Apache Kafka** (Processamento assíncrono de eventos)

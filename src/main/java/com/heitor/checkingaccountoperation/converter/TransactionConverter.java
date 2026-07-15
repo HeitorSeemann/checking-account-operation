@@ -1,51 +1,43 @@
 package com.heitor.checkingaccountoperation.converter;
 
-import com.heitor.checkingaccountoperation.controller.dto.NoteOutputDto;
-import com.heitor.checkingaccountoperation.controller.dto.TransactionOutputDTO;
-import com.heitor.checkingaccountoperation.controller.dto.TransactionInputDto;
 import com.heitor.checkingaccountoperation.entity.Transaction;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
+import com.heitor.checkingaccountoperation.controller.dto.TransactionInputDTO;
+import com.heitor.checkingaccountoperation.controller.dto.TransactionOutputDTO;
+import com.heitor.checkingaccountoperation.controller.dto.NoteOutputDto;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
-@Component
-public class TransactionConverter {
+@Mapper(componentModel = "spring")
+public interface TransactionConverter {
 
-    public Transaction toEntity (TransactionInputDto dto, Integer conta) {
-        Transaction entity = new Transaction();
-        entity.setAccount(conta);
-        entity.setType("Withdrawal");
-        entity.setValue(dto.getValue());
-        entity.setDate(LocalDateTime.now());
-        return entity;
-    }
+    TransactionConverter INSTANCE = Mappers.getMapper(TransactionConverter.class);
 
-    public List<NoteOutputDto> toListNoteOutputDTO(HashMap<Integer, Integer> notes) {
-        List<NoteOutputDto> noteList = new ArrayList<>();
+    Transaction dtoToEntity(TransactionInputDTO dto);
 
-        for(Map.Entry<Integer, Integer> note : notes.entrySet()) {
-            NoteOutputDto dto = new NoteOutputDto();
-            dto.setNote(note.getKey());
-            dto.setQuantity(note.getValue());
-            noteList.add(dto);
+    @Mapping(source = "accountNumber", target = "account")
+    Transaction toEntity(TransactionInputDTO inputDto, Integer accountNumber);
+
+    TransactionOutputDTO toTransactionOutputDTO(Transaction entity);
+
+    List<TransactionOutputDTO> toListTransactionOutputDTO(List<Transaction> list);
+
+    default List<NoteOutputDto> toListNoteOutputDTO(HashMap<Integer, Integer> quantityNotes) {
+        if (quantityNotes == null) {
+            return List.of();
         }
-        noteList.sort(Comparator.comparing(NoteOutputDto:: getNote));
-        return noteList;
-    }
 
-    public TransactionOutputDTO toTransactionOutputDTO(Transaction entity) {
-        ModelMapper modelMapper = new ModelMapper();
-        return modelMapper.map(entity, TransactionOutputDTO.class);
+        return quantityNotes.entrySet().stream()
+                .map(entry -> {
+                    NoteOutputDto dto = new NoteOutputDto();
+                    dto.setNote(entry.getKey());
+                    dto.setQuantity(entry.getValue());
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
-
-    public List<TransactionOutputDTO> toListTransactionOutputDTO(List<Transaction> entities) {
-        List<TransactionOutputDTO> listDTO = new ArrayList<>();
-        entities.stream().forEach(ent -> {
-            listDTO.add(toTransactionOutputDTO(ent));
-        });
-        return listDTO;
-    }
-
 }

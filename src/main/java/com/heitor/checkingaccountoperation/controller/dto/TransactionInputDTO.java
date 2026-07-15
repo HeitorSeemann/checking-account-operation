@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class TransactionInputDto {
+public class TransactionInputDTO {
 
     private Integer value;
 
