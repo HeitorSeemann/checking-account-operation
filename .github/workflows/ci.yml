@@ -1,31 +1,49 @@
-name: Java 25 CI with Gradle
+name: Java CI with Gradle and Kafka
 
 on:
   push:
-    branches: [ "main", "master", "develop" ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ "main", "master" ]
-
-permissions:
-  contents: read
+    branches: [ "main" ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
+    services:
+      kafka:
+        image: confluentinc/cp-kafka:7.4.0
+        ports:
+          - 9092:9092
+        env:
+          KAFKA_NODE_ID: 1
+          KAFKA_PROCESS_ROLES: 'broker,controller'
+          KAFKA_CONTROLLER_QUORUM_VOTERS: '1@localhost:29093'
+          KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093'
+          KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092'
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+          KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+          KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+          KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+          CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Set up JDK 25
+      - name: Configurar JDK para o Gradle
         uses: actions/setup-java@v4
         with:
-          java-version: '25'
+          java-version: '21'
           distribution: 'temurin'
-          cache: 'gradle'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
-      - name: Build and Test with Gradle
+      - name: Criar Tópico no Kafka
+        run: |
+          docker exec ${{ job.services.kafka.id }} kafka-topics --create --bootstrap-server localhost:9092 --topic account-withdrawals --partitions 1 --replication-factor 1
+
+      - name: Executar Build
         run: ./gradlew clean build --no-daemon
