@@ -25,6 +25,7 @@ jobs:
           java-version: '25'
           distribution: 'temurin'
           cache: maven
+          cache-dependency-path: 'backend/pom.xml'
 
       - name: Cache SonarQube packages
         uses: actions/cache@v4
@@ -37,10 +38,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build and analyze
+        working-directory: ./backend
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=HeitorSeemann_checking-account-operation -Dsonar.organization=HeitorSeemann
