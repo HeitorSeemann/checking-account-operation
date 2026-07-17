@@ -19,10 +19,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 25
+      # Instalamos o Java 24 para que o Gradle 9.x consiga rodar sem estourar o erro de JVM maxima suportada
+      - name: Set up JDK 24 for Gradle Daemon
         uses: actions/setup-java@v4
         with:
-          java-version: '25'
+          java-version: '24'
           distribution: 'temurin'
           cache: gradle
 
@@ -33,12 +34,19 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
+      # Removemos propriedades locais conflitantes geradas no Windows
       - name: Remove local Windows Java Home
         run: |
           if [ -f gradle.properties ]; then
             echo "Limpando configuracoes locais de Java Home do Windows..."
             sed -i '/org.gradle.java.home/d' gradle.properties
           fi
+
+      # Força o Gradle a baixar automaticamente o JDK 25 quando for compilar o Toolchain do seu projeto
+      - name: Enable Gradle Toolchain Auto-Provisioning
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.java.installations.auto-download=true" >> ~/.gradle/gradle.properties
 
       - name: Make gradlew executable
         run: chmod +x gradlew
@@ -49,4 +57,5 @@ jobs:
         run: |
           ./gradlew build sonar \
             -Dsonar.projectKey=HeitorSeemann_checking-account-operation \
-            -Dsonar.organization=HeitorSeemann
+            -Dsonar.organization=HeitorSeemann \
+            -Dsonar.host.url=https://sonarcloud.io
