@@ -20,6 +20,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up JDK 25
+        id: setup-java
         uses: actions/setup-java@v4
         with:
           java-version: '25'
@@ -39,4 +40,8 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew build sonar -Dsonar.projectKey=HeitorSeemann_checking-account-operation -Dsonar.organization=HeitorSeemann
+        run: |
+          ./gradlew build sonar \
+            -Porg.gradle.java.home="${{ steps.setup-java.outputs.path }}" \
+            -Dsonar.projectKey=HeitorSeemann_checking-account-operation \
+            -Dsonar.organization=HeitorSeemann
