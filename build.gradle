@@ -8,8 +8,6 @@ plugins {
 group = 'com.heitorseemann'
 version = '0.0.1-SNAPSHOT'
 
-// O Toolchain garante que o seu codigo sera compilado e testado usando Java 25,
-// independentemente da versao do Java que estiver rodando o Gradle por tras.
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(25)
@@ -21,9 +19,18 @@ repositories {
 }
 
 dependencies {
+	// Spring Boot Core Starter Kits
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.kafka:spring-kafka'
+
+	// Configuração obrigatória do Lombok para compilação e processamento de anotações
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
+	// Banco de Dados e Testes
 	runtimeOnly 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.kafka:spring-kafka-test'
