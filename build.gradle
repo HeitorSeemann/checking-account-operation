@@ -2,7 +2,6 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.2'
 	id 'io.spring.dependency-management' version '1.1.7'
-	// ADICIONADO: Plugin oficial do Sonar compatível com a sua versão do Gradle
 	id 'org.sonarqube' version '5.0.0.4638'
 }
 
@@ -26,18 +25,22 @@ repositories {
 }
 
 dependencies {
+	// Spring Boot Core
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.kafka:spring-kafka'
 
-	// Suas dependências nativas mantidas sem alterações
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+	// Lombok - Atualizado com versao fixa para suportar Java 25 e resolver ExceptionInInitializerError
+	compileOnly 'org.projectlombok:lombok:1.18.36'
+	annotationProcessor 'org.projectlombok:lombok:1.18.36'
+	testCompileOnly 'org.projectlombok:lombok:1.18.36'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
 
-	// MapStruct mantido idêntico ao seu projeto original
+	// MapStruct original
 	implementation 'org.mapstruct:mapstruct:1.6.3'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 
+	// Banco de dados e infraestrutura de testes
 	runtimeOnly 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.kafka:spring-kafka-test'
@@ -48,7 +51,6 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-// ADICIONADO: Bloco de mapeamento do Sonar para direcionar ao SonarCloud
 sonar {
 	properties {
 		property "sonar.host.url", "https://sonarcloud.io"
