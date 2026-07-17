@@ -24,8 +24,7 @@ jobs:
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: maven
-          cache-dependency-path: '**/pom.xml'
+          cache: gradle
 
       - name: Cache SonarQube packages
         uses: actions/cache@v4
@@ -34,19 +33,10 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+      - name: Make gradlew executable
+        run: chmod +x gradlew
 
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          POM_PATH=$(find . -name "pom.xml" -print -quit)
-          POM_DIR=$(dirname "$POM_PATH")
-          echo "Executando Maven no diretorio: $POM_DIR"
-          cd "$POM_DIR"
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=HeitorSeemann_checking-account-operation -Dsonar.organization=HeitorSeemann
+        run: ./gradlew build sonar -Dsonar.projectKey=HeitorSeemann_checking-account-operation -Dsonar.organization=HeitorSeemann
