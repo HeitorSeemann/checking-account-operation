@@ -30,7 +30,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.kafka:spring-kafka'
 
-	// Lombok - Atualizado para a versao 1.18.42 que traz suporte nativo e oficial ao Java 25
+	// Lombok - Versão estável com suporte ao compilador do Java 25
 	compileOnly 'org.projectlombok:lombok:1.18.42'
 	annotationProcessor 'org.projectlombok:lombok:1.18.42'
 	testCompileOnly 'org.projectlombok:lombok:1.18.42'
@@ -49,6 +49,12 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// SOLUÇÃO PARA O ERRO MAJOR VERSION 69:
+// Evita que o plugin do Spring tente escanear os binários do Java 25 às cegas
+springBoot {
+	mainClass = 'com.heitor.checkingaccountoperation.CheckingAccountOperationApplication'
 }
 
 sonar {
