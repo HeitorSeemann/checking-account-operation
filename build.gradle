@@ -1,24 +1,17 @@
 plugins {
-	id 'org.springframework.boot' version '4.1.0'
-	id 'io.spring.dependency-management' version '1.1.5'
 	id 'java'
+	id 'org.springframework.boot' version '3.4.2'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.sonarqube' version '5.0.0.4638'
 }
 
-group = 'com.heitorseemann'
+group = 'com.heitor'
 version = '0.0.1-SNAPSHOT'
 
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(25)
 	}
-}
-
-tasks.withType(JavaCompile).configureEach {
-	options.compilerArgs << '-parameters'
-}
-
-tasks.withType(JavaExec).configureEach {
-	javaLauncher = javaToolchains.launcherFor(java.toolchain)
 }
 
 configurations {
@@ -32,29 +25,40 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.kafka:spring-kafka'
 
-	implementation 'org.springframework.boot:spring-boot-starter-kafka'
-
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.0'
-
-	runtimeOnly 'com.h2database:h2'
-	runtimeOnly 'org.postgresql:postgresql'
-
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+	compileOnly 'org.projectlombok:lombok:1.18.42'
+	annotationProcessor 'org.projectlombok:lombok:1.18.42'
+	testCompileOnly 'org.projectlombok:lombok:1.18.42'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.42'
 
 	implementation 'org.mapstruct:mapstruct:1.6.3'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 
-	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
-
+	runtimeOnly 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	testImplementation 'org.mockito:mockito-core:5.14.2'
+	testImplementation 'org.mockito:mockito-junit-jupiter:5.14.2'
+	testImplementation 'net.bytebuddy:byte-buddy:1.17.5'
+	testImplementation 'net.bytebuddy:byte-buddy-agent:1.17.5'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+	systemProperty 'net.bytebuddy.experimental', 'true'
+}
+
+springBoot {
+	mainClass = 'com.heitor.checkingaccountoperation.CheckingAccountOperationApplication'
+}
+
+sonar {
+	properties {
+		property "sonar.host.url", "https://sonarcloud.io"
+	}
 }

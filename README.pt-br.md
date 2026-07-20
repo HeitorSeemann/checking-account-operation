@@ -12,6 +12,7 @@ Qualquer execução de saque aciona as regras centrais de negócio para validar 
 - **Apache Kafka** (Processamento assíncrono de eventos)
 - **H2 Database** (Em memória para histórico de transações)
 - **Spring Data JPA**
+- **Sonarqube**
 
 ## 🔄 Padrões de Comunicação da Arquitetura
 
