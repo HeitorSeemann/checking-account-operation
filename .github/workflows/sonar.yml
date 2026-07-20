@@ -19,7 +19,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      # O Gradle do seu projeto roda com Java 24 sem estourar erros de compatibilidade de ferramentas
+      # O Gradle do seu projeto roda com Java 24 sem quebrar os limites de compatibilidade das ferramentas
       - name: Set up JDK 24 for Gradle
         uses: actions/setup-java@v4
         with:
@@ -41,7 +41,7 @@ jobs:
             sed -i '/org.gradle.java.home/d' gradle.properties
           fi
 
-      # Permite que o Gradle baixe o JDK 25 isolado para compilar seu código usando o Toolchain
+      # Permite que o Gradle baixe o JDK 25 de forma isolada para compilar seu código usando o Toolchain
       - name: Enable Gradle Toolchain Auto-Provisioning
         run: |
           mkdir -p ~/.gradle

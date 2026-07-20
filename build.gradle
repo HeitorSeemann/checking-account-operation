@@ -30,11 +30,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.kafka:spring-kafka'
 
-	// Lombok atualizado para a versão com suporte preliminar a JDKs novos
-	compileOnly 'org.projectlombok:lombok:1.18.36'
-	annotationProcessor 'org.projectlombok:lombok:1.18.36'
-	testCompileOnly 'org.projectlombok:lombok:1.18.36'
-	testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+	// Lombok - Atualizado para a versao 1.18.42 que traz suporte nativo e oficial ao Java 25
+	compileOnly 'org.projectlombok:lombok:1.18.42'
+	annotationProcessor 'org.projectlombok:lombok:1.18.42'
+	testCompileOnly 'org.projectlombok:lombok:1.18.42'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.42'
 
 	// MapStruct original preservado
 	implementation 'org.mapstruct:mapstruct:1.6.3'
@@ -49,23 +49,6 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
-}
-
-// ESTA É A CORREÇÃO OBRIGATÓRIA PARA O LOMBOK NÃO QUEBRAR NO JAVA 25:
-// Abre os pacotes internos do compilador Java para o Lombok conseguir trabalhar por reflexão
-tasks.withType(JavaCompile).configureEach {
-	options.fork = true
-	options.forkOptions.jvmArgs += [
-			'--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
-			'--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED',
-			'--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED',
-			'--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED',
-			'--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED',
-			'--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED',
-			'--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED',
-			'--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
-			'--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED'
-	]
 }
 
 sonar {
