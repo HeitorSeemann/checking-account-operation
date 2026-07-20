@@ -19,8 +19,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Instalamos o Java 24 para que o Gradle 9.x consiga rodar sem estourar o erro de JVM maxima suportada
-      - name: Set up JDK 24 for Gradle Daemon
+      # O Gradle do seu projeto roda com Java 24 sem estourar erros de compatibilidade de ferramentas
+      - name: Set up JDK 24 for Gradle
         uses: actions/setup-java@v4
         with:
           java-version: '24'
@@ -34,7 +34,6 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      # Removemos propriedades locais conflitantes geradas no Windows
       - name: Remove local Windows Java Home
         run: |
           if [ -f gradle.properties ]; then
@@ -42,7 +41,7 @@ jobs:
             sed -i '/org.gradle.java.home/d' gradle.properties
           fi
 
-      # Força o Gradle a baixar automaticamente o JDK 25 quando for compilar o Toolchain do seu projeto
+      # Permite que o Gradle baixe o JDK 25 isolado para compilar seu código usando o Toolchain
       - name: Enable Gradle Toolchain Auto-Provisioning
         run: |
           mkdir -p ~/.gradle
