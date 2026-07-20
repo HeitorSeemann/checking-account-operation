@@ -25,29 +25,23 @@ repositories {
 }
 
 dependencies {
-	// Spring Boot Core
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.kafka:spring-kafka'
 
-	// Lombok - Versão estável com suporte ao compilador do Java 25
 	compileOnly 'org.projectlombok:lombok:1.18.42'
 	annotationProcessor 'org.projectlombok:lombok:1.18.42'
 	testCompileOnly 'org.projectlombok:lombok:1.18.42'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.42'
 
-	// MapStruct original preservado
 	implementation 'org.mapstruct:mapstruct:1.6.3'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 
-	// Banco de dados e infraestrutura de testes padrão
 	runtimeOnly 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.kafka:spring-kafka-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	// CORREÇÃO DEFINITIVA DO MOCKITO NO JAVA 25:
-	// Força a versão 1.17.5+ do ByteBuddy que possui o leitor de bytecode 69 (Java 25)
 	testImplementation 'org.mockito:mockito-core:5.14.2'
 	testImplementation 'org.mockito:mockito-junit-jupiter:5.14.2'
 	testImplementation 'net.bytebuddy:byte-buddy:1.17.5'
@@ -56,7 +50,6 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
-	// Força a JVM de teste a habilitar suporte experimental para assinaturas do Java 25
 	systemProperty 'net.bytebuddy.experimental', 'true'
 }
 
