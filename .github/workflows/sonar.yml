@@ -55,6 +55,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           ./gradlew build sonar \
-            -Dsonar.projectKey=HeitorSeemann_checking-account-operation \
-            -Dsonar.organization=HeitorSeemann \
+            -Dsonar.projectKey=heitorseemann_checking-account-operation \
+            -Dsonar.organization=heitorseemann \
             -Dsonar.host.url=https://sonarcloud.io
