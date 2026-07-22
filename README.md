@@ -13,7 +13,6 @@ Every withdrawal execution triggers core business logic to validate balance and 
 - **H2 Database** (In-Memory for transaction history and state embedded within the process)
 - **Spring Data JPA**
 - **Docker & Docker Compose** (Containerization and infrastructure orchestration)
-- **Sonarqube**
 
 ## 🔄 Architectural Communication Patterns
 
