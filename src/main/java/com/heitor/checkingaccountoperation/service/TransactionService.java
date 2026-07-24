@@ -28,8 +28,8 @@ public class TransactionService {
 
     private static final int[] NOTES = {100, 50, 20, 10};
     private static final String MSG_VALUE_NOT_ALLOWED = "Value not allowed to withdraw";
-    private static final String ERROR_MSG_TRANSACTION_ERROR = "Error to withdraw";
-    private static final String ERROR_MSG_SEARCH_ERROR = "Error to find withdraw";
+    private static final String ERROR_MSG_TRANSACTION_ERROR = "Error to withdraw, error: ";
+    private static final String ERROR_MSG_SEARCH_ERROR = "Error to find withdraw, error: ";
     private static final String ERROR_MSG_SUID_ERROR = "Error - SUID already used";
 
     @Transactional
@@ -50,7 +50,7 @@ public class TransactionService {
             return notesToWithdraw;
 
         } catch (DataAccessException e) {
-            throw new WithdrawalException(ERROR_MSG_TRANSACTION_ERROR);
+            throw new WithdrawalException(ERROR_MSG_TRANSACTION_ERROR + e.getMessage());
         }
     }
 
@@ -93,7 +93,7 @@ public class TransactionService {
         try {
             transactions =  converter.toListTransactionOutputDTO(repository.findByAccount(account));
         } catch (Exception e) {
-            throw new WithdrawalException(ERROR_MSG_SEARCH_ERROR);
+            throw new WithdrawalException(ERROR_MSG_SEARCH_ERROR + e.getMessage());
         }
         return transactions;
     }

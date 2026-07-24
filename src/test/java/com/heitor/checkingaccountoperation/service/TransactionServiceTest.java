@@ -19,8 +19,7 @@ import utils.MockUtils;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -82,7 +81,7 @@ class TransactionServiceTest {
             service.withdraw(inputDto, MockUtils.ACCOUNT_NUMBER, TEST_SUID);
         });
 
-        assertEquals("Error to withdraw", exception.getMessage());
+        assertTrue(exception.getMessage().contains("Error to withdraw"));
     }
 
     @Test
@@ -124,7 +123,7 @@ class TransactionServiceTest {
             service.search(MockUtils.ACCOUNT_NUMBER);
         });
 
-        assertEquals("Error to find withdraw", exception.getMessage());
+        assertTrue(exception.getMessage().contains("Error to find withdraw"));
     }
 
 }
