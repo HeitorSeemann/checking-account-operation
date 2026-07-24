@@ -7,10 +7,10 @@ Qualquer execução de saque aciona as regras centrais de negócio para validar 
 ## 🚀 Tecnologias
 
 - **Java 25**
-- **Spring Boot 3.x**
+- **Spring Boot 4.x**
 - **Gradle**
 - **Apache Kafka** (Processamento assíncrono de eventos)
-- **H2 Database** (Em memória para histórico de transações)
+- **PostgreSQL Database**
 - **Spring Data JPA**
 
 ## 🔄 Padrões de Comunicação da Arquitetura

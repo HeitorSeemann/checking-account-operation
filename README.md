@@ -10,7 +10,7 @@ Every withdrawal execution triggers core business logic to validate balance and 
 - **Spring Boot**
 - **Gradle**
 - **Apache Kafka** (Asynchronous event processing via Docker KRaft mode)
-- **H2 Database** (In-Memory for transaction history and state embedded within the process)
+- **PostgreSQL Database**
 - **Spring Data JPA**
 - **Docker & Docker Compose** (Containerization and infrastructure orchestration)
 - **Sonarqube**
