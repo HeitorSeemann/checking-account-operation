@@ -36,9 +36,12 @@ services:
       - "8080:8080"
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/checking_account
     depends_on:
       kafka:
         condition: service_healthy
+      postgres-db:
+        condition: service_started
 
   postgres-db:
     image: postgres:17-alpine
